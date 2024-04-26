@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const Book = require('../models/Book');
 
-
+//books adding by using post method
 router.post('/books_add', async (req, res) => {
     try {
         const request = req?.body;
@@ -40,8 +40,26 @@ router.post('/books_add', async (req, res) => {
 
 router.post('/book_list', async (req, res) => {
     try {
-        const books = await Book.find();
-        res.json(books);
+        let author = req?.body?.author;
+        let publicationYear = req?.body?.publicationYear;
+        if (author !== "" || publicationYear !== "") {
+            const books = await Book.find(author !== "" ? { author: author } : { publicationYear: publicationYear });
+            if (books && books.length > 0) {
+                return res.json({ message: " Books getSuccessfully ", list: books })
+            }
+            else {
+                return res.json({ message: " Unable to get Books 1 ", list: books })
+            }
+        }
+        else {
+            const books = await Book.find();
+            if (books && books.length > 0) {
+                return res.json({ message: " Books getSuccessfully ", list: books })
+            }
+            else {
+                return res.json({ message: " Unable to get Books ", list: books })
+            }
+        }
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
